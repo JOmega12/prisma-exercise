@@ -4,4 +4,14 @@ import { StarRating } from "@prisma/client";
 
 // hint:find all stars with the movies "included" on, then good ol' javascript should finish the job
 // This one should require more javascript work than the previous ones
-export const getAllMoviesWithAverageScoreOverN = async (n: number) => {};
+export const getAllMoviesWithAverageScoreOverN = async (n: number) => {
+
+   const allMovies = await prisma.starRating.findMany({
+      include: {
+         movie: true,
+      }
+   })  
+   
+   // console.log(allMovies, 'all movies');
+};
+
