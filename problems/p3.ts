@@ -4,11 +4,14 @@ import { prisma } from "./prisma";
 // hint: the hot tub is hot, the water is great, to solve this problem you should "aggregate"
 export const getAverageUserAge = async () => {
 
-   const userAge = await prisma.user.aggregate({
-      _avg: {
-         age: true,
+   const userAge = await prisma.user.findMany({
+      select: {
+         age: true
       }
-   }) 
+   })
 
-   return userAge;
+   const totalAge = userAge.reduce((total, user) => total + user.age, 0);
+
+   const avgAge = totalAge / userAge.length;
+   return avgAge;
 };
