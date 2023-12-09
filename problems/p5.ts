@@ -11,7 +11,10 @@ export const getAllMoviesWithAverageScoreOverN = async (n: number) => {
          movie: true,
       }
    })  
+   console.log(allmovies, 'allmovies')
    
+
+   const mapOfMovies = groupBy(allMovies, ({rating}) => rating.movie.id)
    // console.log(allMovies, 'all movies');
 };
 
