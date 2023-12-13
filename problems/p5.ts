@@ -1,4 +1,4 @@
-import { groupBy, map, reduce, sumBy } from "remeda";
+import {groupBy, map, reduce, sumBy } from "remeda";
 import { prisma } from "./prisma";
 import { StarRating } from "@prisma/client";
 
@@ -9,9 +9,6 @@ export const getAllMoviesWithAverageScoreOverN = async (n: number) => {
    // sumby is getting the total amount
    // all of this is on remeda
 
-
-
-   const allMoviesAvg = []
    // youre using n:number from the paramter as an if statement of the your total avg scores
    // if avg scores > n, show the movies
 
@@ -29,29 +26,35 @@ export const getAllMoviesWithAverageScoreOverN = async (n: number) => {
       }
    }) 
 
+   const groupMovieId = groupBy(allMovies, item => item.movieId);
 
-   const filterMovieID = allMovies.map((item) => item.movieId);
-   // console.log(filterMovieID, 'movieID')
-   const filterMovieScore = allMovies.map((item) => item.score);
+   const entries = Object.entries(groupMovieId);
+   // console.log(entries, 'entries')
+
+   const moviesWithAvgScore = map(entries, ([_movieId, ratings]) => {
+      const totalScore = sumBy(ratings as { score: number }[], (rating) => rating.score);
+      const avgScore = totalScore / ratings.length;
+
+      const movie = ratings[0].movie
 
 
-   const totalScore = 0;
-
-   allMovies.forEach((item) => {
-      const movieID = item.movieId;
-      const movieScore = item.score;
+      return {avgScore, movie}
    })
 
-   // console.log(allMovies, 'allmovies')
-   // this shows all the movies with their ID ONLY
-
-
-   // console.log(filterMovieScore, 'filtermovu')
-   // const moviesWithAvgScore = allMovies.map((item) => {
-   //    if(item.movieId )
-   // })
+   // console.log(moviesWithAvgScore, 'movies with avg score')
    
-   // const filterMovieID = Object.entries(allMovies.filter(item => item.movieId));
-   // console.log(allMovies, 'all movies');
+   const filteredMovies = moviesWithAvgScore.filter((movie) => movie.avgScore > n );
+   // console.log(filteredMovies, 'fm')
+   
+
+   const formattedMovies = filteredMovies.map(({movie}) => ({
+      id: movie.id,
+      parentalRating: movie.parentalRating,
+      releaseYear: movie.releaseYear,
+      title: movie.title,
+      // movie: movie
+   }));
+
+   return formattedMovies
 };
 
