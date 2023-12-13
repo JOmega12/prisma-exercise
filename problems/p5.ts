@@ -34,17 +34,22 @@ export const getAllMoviesWithAverageScoreOverN = async (n: number) => {
       const avgScore = sumBy(ratings, (s) => s.score / ratings.length);
       if(avgScore > n) {
          // return [...acc, ...map(ratings, rating => rating.movie)];
-         console.log(acc, 'acc');
-         console.log()
+         // console.log(ratings, 'ratings');
+         // console.log(ratings[0], 'ratings 0 ');
+         // const movieIds = ratings.map((rating) => rating.movieId);
+         // console.log(movieIds)
+         // const findMovie = map(movieIds, (id) => Object.values(allMovies).find((m) => m.id === id))
+         // console.log(findMovie, 'findMovie')
          // ? this code below works but gives an error??
+         // return [...acc, ...findMovie];
          return [...acc, ratings[0].movie];
       }
       return acc;
    },
-   [] as StarRating[]
+   [] as number[]
    );
-
-   const sortedMovies = sortBy(moviesWithAvgScore, (movie) => movie.id)
+   const sortedMovies = sortBy(moviesWithAvgScore, (movie) => movie)
+   console.log(sortedMovies)
    return sortedMovies
    // return moviesWithAvgScore
 
