@@ -1,4 +1,4 @@
-import {groupBy, map, reduce, sumBy } from "remeda";
+import {groupBy, map, reduce, sortBy, sumBy } from "remeda";
 import { prisma } from "./prisma";
 import { StarRating } from "@prisma/client";
 
@@ -29,32 +29,24 @@ export const getAllMoviesWithAverageScoreOverN = async (n: number) => {
    const groupMovieId = groupBy(allMovies, item => item.movieId);
 
    const entries = Object.entries(groupMovieId);
-   // console.log(entries, 'entries')
+   const moviesWithAvgScore = reduce(entries, (acc, [_movieIdkey, ratings]: [string, StarRating[]]) => {
 
-   const moviesWithAvgScore = map(entries, ([_movieId, ratings]) => {
-      const totalScore = sumBy(ratings as { score: number }[], (rating) => rating.score);
-      const avgScore = totalScore / ratings.length;
+      const avgScore = sumBy(ratings, (s) => s.score / ratings.length);
+      if(avgScore > n) {
+         // return [...acc, ...map(ratings, rating => rating.movie)];
+         console.log(acc, 'acc');
+         console.log()
+         // ? this code below works but gives an error??
+         return [...acc, ratings[0].movie];
+      }
+      return acc;
+   },
+   [] as StarRating[]
+   );
 
-      const movie = ratings[0].movie
+   const sortedMovies = sortBy(moviesWithAvgScore, (movie) => movie.id)
+   return sortedMovies
+   // return moviesWithAvgScore
 
-
-      return {avgScore, movie}
-   })
-
-   // console.log(moviesWithAvgScore, 'movies with avg score')
-   
-   const filteredMovies = moviesWithAvgScore.filter((movie) => movie.avgScore > n );
-   // console.log(filteredMovies, 'fm')
-   
-
-   const formattedMovies = filteredMovies.map(({movie}) => ({
-      id: movie.id,
-      parentalRating: movie.parentalRating,
-      releaseYear: movie.releaseYear,
-      title: movie.title,
-      // movie: movie
-   }));
-
-   return formattedMovies
 };
 
