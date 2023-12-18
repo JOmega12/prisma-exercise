@@ -1,4 +1,4 @@
-import { maxBy, minBy } from "remeda";
+import { groupBy, map, maxBy, minBy } from "remeda";
 import { prisma } from "./prisma";
 
 // Always tell truths, don't you ever lie, to solve this problem, just try a `groupBy`
@@ -13,46 +13,19 @@ export const findTheGrumpiestCriticId = async () => {
       }
    })
 
-   console.log(allMovies, 'allmovies')
+   const groupByUserId = groupBy(allMovies, (item) => item.userId);
 
-   const userScore = allMovies.map((item) => item.score);
-   // console.log(userScore, 'userScore')
-   const totalScore = userScore.reduce((total, current) => {
-      return total + current;
-   }, 0)
-   const averageScore = totalScore / userScore.length;
+   const values = Object.values(groupByUserId);
 
-
-//   const userScores = allMovies.reduce((acc, item) => {
-//     const userId = item.user.id;
-//     const score = item.score;
-
-//     if (!acc[userId]) {
-//       acc[userId] = { totalScore: 0, count: 0 };
-//     }
-
-//     acc[userId].totalScore += score;
-//     acc[userId].count += 1;
-
-//     return acc;
-//   }, {});
-
-//   const averageScores = Object.keys(userScores).map((userId) => {
-//     const userScore = userScores[userId];
-//     return {
-//       userId: parseInt(userId),
-//       averageScore: userScore.totalScore / userScore.count,
-//     };
-//   });
-
-//   const grumpiestUser = minBy(averageScores, (user) => user.averageScore);
-
-//   if (grumpiestUser) {
-//     return grumpiestUser.userId;
-//   }
-
-//   return null;
-
+   const userAverage = map((values), ratings => {
+      const userScore = ratings.map((item) => item.score);
+      const totalScore = userScore.reduce((total, current) => {
+         return total + current;
+      }, 0) / userScore.length
+      return {userId: ratings[0].userId, username: ratings[0].user.username, totalScore}
+   })
+   const badReview = minBy(userAverage, user => user.totalScore);
+   return badReview?.userId;
 };
 
 // find the critic with the highest average score
@@ -64,6 +37,15 @@ export const findTheNicestCriticId = async () => {
       }
    })
 
+   const groupByUserId = groupBy(allMovies, (ratings) => ratings.userId);
+   const values = Object.values(groupByUserId);
 
+   const userAverage = map((values), ratings => {
+      const userScore = ratings.map((item) => item.score);
+      const totalScore = userScore.reduce((total, current) => total + current) / userScore.length;
+      return {userId: ratings[0].userId, username: ratings[0].user.username ,totalScore};
+   })
 
+   const nicePerson = maxBy((userAverage), (user) => user.totalScore);
+   return nicePerson?.userId;
 };
