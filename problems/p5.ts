@@ -1,4 +1,4 @@
-import {groupBy, map, reduce, sortBy, sumBy } from "remeda";
+import {groupBy, map, reduce, sumBy } from "remeda";
 import { prisma } from "./prisma";
 import { StarRating } from "@prisma/client";
 
@@ -11,8 +11,6 @@ export const getAllMoviesWithAverageScoreOverN = async (n: number) => {
          movie: true,
       }
    }) 
-
-   console.log(allMovies, 'allmovies')
    const groupMovieId = groupBy(allMovies, item => item.movieId);
 
    const entries = Object.entries(groupMovieId);
@@ -20,16 +18,18 @@ export const getAllMoviesWithAverageScoreOverN = async (n: number) => {
 
       const avgScore = sumBy(ratings, (s) => s.score / ratings.length);
       if(avgScore > n) {
-         // ? this code below works but gives an error??
-         return [...acc, ratings[0].movie];
+         return [...acc, ratings[0].movieId];
       }
       return acc;
    },
    [] as number[]
    );
-   const sortedMovies = sortBy(moviesWithAvgScore, (movie) => movie)
-   return sortedMovies
 
+   const movieID = map(moviesWithAvgScore, (moviesId) => {
+      console.log(moviesId, 'moviesId');
+      return allMovies.find((rating) => rating.movieId === moviesId)?.movie
+   })
+   return movieID;
 };
 
 
