@@ -6,12 +6,11 @@ export const getNYoungestUsers = (howManyUsersToGrab: number) => {
 
 
    // from the hint, get all the user ages, then "take" the age that is lowest among the array of users
-   const youngest = prisma.user.findMany({
+   return prisma.user.findMany({
       take: howManyUsersToGrab,
       orderBy: {
          age: "asc"
       },
 
    })
-   return youngest;
 };

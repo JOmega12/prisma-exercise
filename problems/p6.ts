@@ -13,11 +13,10 @@ export const findAllMoviesThatAUserWatched = async (userId: number) => {
       }
    })
 
-   const movieArray = allMovies.map((item) => {
+   return allMovies.map((item) => {
       if(userId === item.user.id) {
          return item.movie
       }
    })
 
-   return movieArray;
 };

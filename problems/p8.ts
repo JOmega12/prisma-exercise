@@ -6,6 +6,8 @@ import { prisma } from "./prisma";
 // find the critic with the lowest average score
 export const findTheGrumpiestCriticId = async () => {
 
+   // groups users by their avg score and find the minimum of that 
+
    const allMovies = await prisma.starRating.findMany({
       include: {
          movie:true,
