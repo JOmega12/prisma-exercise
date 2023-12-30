@@ -3,22 +3,13 @@ import { prisma } from "./prisma";
 // get average score for a user
 export const getAverageScoreForUser = async (userId: number) => {
 
-   // do this with aggregate
-   const allMovies = await prisma.starRating.findMany({
-      where : {
-         userId: userId
+   const avgScorePerUser = await prisma.starRating.aggregate({
+      where: {
+         userId: userId,
       },
-      include: {
-         movie:true,
-         user: true,
+      _avg: {
+         score: true
       }
    })
-
-   const userScore = allMovies.map((item) => item.score);
-   const totalScore = userScore.reduce((total, current) => {
-      return total + current;
-   }, 0)
-   const averageScore = totalScore / userScore.length
-
-   return averageScore
+   return avgScorePerUser._avg.score;
 };
