@@ -1,53 +1,36 @@
-import { groupBy, map, maxBy, minBy } from "remeda";
 import { prisma } from "./prisma";
 
 // Always tell truths, don't you ever lie, to solve this problem, just try a `groupBy`
 
 // find the critic with the lowest average score
 export const findTheGrumpiestCriticId = async () => {
-
-   // groups users by their avg score and find the minimum of that 
-
-   const allMovies = await prisma.starRating.findMany({
-      include: {
-         movie:true,
-         user: true,
+   // groups users by their avg score and return the minimum/ maximum of that 
+   const groups = await prisma.starRating.groupBy({
+      by: ["userId"],
+      _avg: {
+         score: true
+      },
+      orderBy: {
+         _avg: {
+            score: 'asc'
+         }
       }
    })
-
-   const groupByUserId = groupBy(allMovies, (item) => item.userId);
-
-   const values = Object.values(groupByUserId);
-
-   const userAverage = map((values), ratings => {
-      const userScore = ratings.map((item) => item.score);
-      const totalScore = userScore.reduce((total, current) => {
-         return total + current;
-      }, 0) / userScore.length
-      return {userId: ratings[0].userId, username: ratings[0].user.username, totalScore}
-   })
-   const badReview = minBy(userAverage, user => user.totalScore);
-   return badReview?.userId;
+   return groups[0].userId;
 };
 
 // find the critic with the highest average score
 export const findTheNicestCriticId = async () => {
-   const allMovies = await prisma.starRating.findMany({
-      include: {
-         movie:true,
-         user: true,
+   const groups = await prisma.starRating.groupBy({
+      by: ["userId"],
+      _avg: {
+         score: true
+      },
+      orderBy: {
+         _avg: {
+            score: 'desc'
+         }
       }
    })
-
-   const groupByUserId = groupBy(allMovies, (ratings) => ratings.userId);
-   const values = Object.values(groupByUserId);
-
-   const userAverage = map((values), ratings => {
-      const userScore = ratings.map((item) => item.score);
-      const totalScore = userScore.reduce((total, current) => total + current) / userScore.length;
-      return {userId: ratings[0].userId, username: ratings[0].user.username ,totalScore};
-   })
-
-   const nicePerson = maxBy((userAverage), (user) => user.totalScore);
-   return nicePerson?.userId;
+   return groups[0].userId;
 };
